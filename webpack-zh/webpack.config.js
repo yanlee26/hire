@@ -1,49 +1,50 @@
+const path = require('path');
 const webpack = require('webpack');
-
+// https://juejin.im/post/5cdfb48fe51d4510ac6721b7
 module.exports = {
-  entry: './src/index.js',
-
-  mode: 'production',
-
-  output: {
-    filename: '[id].[chunkhash:8].js'
+  entry: {
+    main: './src/index.js',
+    'module1~main': './src/module-1/index.js',
+    'module2~main': './src/module-2/index.js',
   },
-
+  mode: 'production',
+  output: {
+    filename: '[id].[contenthash].js',
+    path: path.resolve(__dirname, 'dist'),
+    chunkFilename: '[name].[contenthash].js',
+  },
   optimization: {
-    runtimeChunk: true,
+    runtimeChunk: 'single',
     splitChunks: {
       cacheGroups: {
         common: {
-          automaticNamePrefix: 'common',
-          priority: 1,
-          chunks: "initial"
-        },
-        'module-1': {
-          automaticNamePrefix: 'module1',
-          priority: 2,
-          chunks: "initial"
-        },
-        'module-2': {
-          automaticNamePrefix: 'module2',
-          priority: 3,
-          chunks: "initial"
+          test: /\.js$/,
+          name: 'common~main',
+          chunks: 'initial',
+          minChunks: 1,
+          minSize: 0
         },
         vendor: {
-          automaticNamePrefix: 'vendors',
-          priority: 10,
           test: /[\\/]node_modules[\\/]/,
-          chunks: 'all'
+          name: 'vendors~main',
+          chunks: 'all',
+          minChunks: 1,
+          minSize: 0,
+          priority: 1
         }
       }
     },
   },
-  plugins: [ 
-    new webpack.NamedChunksPlugin((chunk) => { 
-      if (chunk.name) { 
-        return chunk.name; 
-      } 
-      return chunk.modules.map(m => path.relative(m.context, m.request)).join("_"); 
-    }), 
+  plugins: [
+    // new webpack.HashedModuleIdsPlugin({
+    //   hashDigest: 'hex'
+    // }),
+    new webpack.NamedChunksPlugin((chunk) => {
+      if (chunk.name) {
+        return chunk.name;
+      }
+      return chunk.modules.map(m => path.relative(m.context, m.request)).join("_");
+    }),
   ]
-  
+
 }

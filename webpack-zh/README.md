@@ -1,5 +1,6 @@
 # predictable long term cache 代码模板
-
+> https://developers.google.com/web/fundamentals/performance/webpack/use-long-term-caching
+> 
 ## 项目依赖
 
 - NodeJS >= 10
